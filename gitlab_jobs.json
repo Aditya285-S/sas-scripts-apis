@@ -1,0 +1,39 @@
+{
+  "jobs": [
+    {
+      "job_id": "job-001",
+      "script_name": "data_processing.sas",
+      "script_path": "sas/raw/data_processing.sas",
+      "status": "completed",
+      "logs": "NOTE: SAS job started at 2024-11-10 10:30:00 NOTE: PROCEDURE SQL used (Total process time): real time 15.23 seconds cpu time 12.45 seconds\nWARNING: Multiple INDEX statements found. Performance may be impacted.\nNOTE: Table WORK.CUSTOMER_DATA created with 1000000 observations.\nWARNING: Hash join used without proper memory allocation.\nNOTE: PROC SQL completed successfully.\nERROR: Potential cartesian product detected in join operation.\nNOTE: Job completed at 2024-11-10 10:35:23"
+    },
+    {
+      "job_id": "job-002",
+      "script_name": "report_generation.sas",
+      "script_path": "sas/raw/report_generation.sas",
+      "status": "failed",
+      "logs": "NOTE: SAS job started at 2024-11-10 11:00:00\nERROR: File WORK.MISSING_TABLE does not exist.\nERROR: PROC REPORT terminated due to missing input dataset.\nNOTE: Job failed at 2024-11-10 11:00:15"
+    },
+    {
+      "job_id": "job-003",
+      "script_name": "etl_pipeline.sas",
+      "script_path": "sas/raw/etl_pipeline.sas",
+      "status": "completed",
+      "logs": "NOTE: ETL job started at 2024-11-10 09:15:00\nWARNING: PROC APPEND used with FORCE option may cause data type conversion issues.\nNOTE: 100 datasets processed.\nWARNING: PROC SORT may benefit from TAGSORT option for large datasets.\nNOTE: The data set WORK.SORTED has 5000000 observations and 25 variables.\nNOTE: PROCEDURE SORT used (Total process time): real time 45.67 seconds cpu time 38.90 seconds\nNOTE: Job completed at 2024-11-10 09:25:45"
+    },
+    {
+      "job_id": "job-004",
+      "script_name": "statistical_analysis.sas",
+      "script_path": "sas/raw/statistical_analysis.sas",
+      "status": "completed",
+      "logs": "NOTE: Analysis started at 2024-11-10 14:20:00\nNOTE: PROCEDURE MEANS used (Total process time): real time 2.34 seconds\nWARNING: Large contingency table may cause memory issues.\nNOTE: PROCEDURE FREQ used (Total process time): real time 5.67 seconds\nWARNING: Consider using PLOTS= option for diagnostic plots in PROC REG.\nNOTE: Analysis completed at 2024-11-10 14:28:30"
+    },
+    {
+      "job_id": "job-005",
+      "script_name": "data_quality_check.sas",
+      "script_path": "sas/raw/data_quality_check.sas",
+      "status": "completed_with_warnings",
+      "logs": "NOTE: Data quality job started at 2024-11-10 08:45:00\nWARNING: Missing values detected in multiple observations.\nNOTE: 15000 observations deleted due to missing key fields.\nERROR: Invalid data for customer_since in observation 234. Value: '13/45/2023'\nWARNING: BY statement requires sorted data. Consider using PROC SORT first.\nNOTE: The data set WORK.CLEAN_DATA has 485000 observations and 12 variables.\nNOTE: Job completed at 2024-11-10 08:52:15"
+    }
+  ]
+}
