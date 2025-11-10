@@ -82,12 +82,12 @@ def push_to_gitlab(file_path: str, content: str, commit_message: str):
 
 
 # --- ROUTES ---
+# @app.get("/jobs")
+# def list_jobs():
+#     return load_jobs()
+
+
 @app.get("/jobs")
-def list_jobs():
-    return load_jobs()
-
-
-@app.get("/jobs/{job_id}")
 def get_job(job_id: str):
     return get_job_by_id(job_id)
 
