@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from dotenv import load_dotenv
 import requests
 import json
@@ -27,7 +27,6 @@ app = FastAPI(title="GitLab Job Manager API")
 
 # --- UTILITIES ---
 def load_jobs(config_path="gitlab_jobs.json"):
-    """Load all job definitions from JSON file."""
     try:
         with open(config_path, "r") as f:
             data = json.load(f)
@@ -37,7 +36,6 @@ def load_jobs(config_path="gitlab_jobs.json"):
 
 
 def get_job_by_id(job_id: str):
-    """Retrieve a single job by ID and add the GitLab raw file URL."""
     jobs = load_jobs()
     for job in jobs:
         if job.get("job_id") == job_id:
@@ -50,25 +48,23 @@ def get_job_by_id(job_id: str):
 
 
 def file_exists(file_path: str, branch: str = "main") -> bool:
-    """Check if a file already exists in GitLab repo."""
     encoded_path = quote(file_path, safe="")
     url = f"{BASE_URL}/{encoded_path}?ref={branch}"
     response = requests.get(url, headers=HEADERS)
     return response.status_code == 200
 
 
-def push_to_gitlab(job: dict):
-    """Create or update a file in GitLab repo using project ID."""
-    encoded_path = quote(job["script_path"], safe="")
+def push_to_gitlab(file_path: str, content: str, commit_message: str):
+    encoded_path = quote(file_path, safe="")
     url = f"{BASE_URL}/{encoded_path}"
 
     payload = {
         "branch": "main",
-        "content": job["logs"],
-        "commit_message": f"Commit job logs for {job['script_name']}"
+        "content": content,
+        "commit_message": commit_message
     }
 
-    if file_exists(job["script_path"], "main"):
+    if file_exists(file_path, "main"):
         response = requests.put(url, headers=HEADERS, data=json.dumps(payload))
         action = "updated"
     else:
@@ -81,28 +77,43 @@ def push_to_gitlab(job: dict):
     return {
         "status": "success",
         "action": action,
-        "file_path": job["script_path"]
+        "file_path": file_path
     }
 
 
 # --- ROUTES ---
 @app.get("/jobs")
 def list_jobs():
-    """List all available GitLab jobs."""
     return load_jobs()
 
 
 @app.get("/jobs/{job_id}")
 def get_job(job_id: str):
-    """Get a single job by its ID (adds GitLab raw URL)."""
     return get_job_by_id(job_id)
 
 
 @app.post("/jobs/{job_id}/commit")
-def commit_job(job_id: str):
-    """Commit a specific job to GitLab (create/update file)."""
+def commit_job(job_id: str, payload: dict = Body(...)):
+    """
+    Commit a specific job to GitLab.
+    Request body must include:
+    {
+        "content": "file content to commit",
+        "commit_message": "optional commit message"
+    }
+    """
     job = get_job_by_id(job_id)
-    result = push_to_gitlab(job)
+    content = payload.get("content")
+    if not content:
+        raise HTTPException(status_code=400, detail="Missing 'content' in request body")
+    
+    commit_message = payload.get("commit_message", f"Commit job logs for {job['script_name']}")
+    
+    # --- NEW: Build GitLab path ---
+    file_path_in_gitlab = f"sas/optimized/{job['script_name']}"
+    
+    result = push_to_gitlab(file_path_in_gitlab, content, commit_message)
+    
     return {
         "job_id": job["job_id"],
         "file_path": result["file_path"],
