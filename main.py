@@ -92,7 +92,7 @@ def get_job(job_id: str):
     return get_job_by_id(job_id)
 
 
-@app.post("/jobs/{job_id}/commit")
+@app.post("/jobs/commit")
 def commit_job(job_id: str, payload: dict = Body(...)):
     """
     Commit a specific job to GitLab.
